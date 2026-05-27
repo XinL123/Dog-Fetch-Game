@@ -388,6 +388,28 @@ button:disabled { opacity: .48; cursor: not-allowed; }
 .import-btn input { display: none; }
 .stack-tools { display: flex; flex-direction: column; gap: 10px; }
 
+.primary-controls button {
+  min-height: 48px;
+  border-radius: 12px;
+}
+
+.advanced-panel {
+  margin-top: 0;
+}
+
+.advanced-panel summary {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 800;
+  color: rgba(0,0,0,.72);
+}
+
+.advanced-panel .row:first-of-type {
+  margin-top: 10px;
+}
+
 .status-tags {
   display: flex;
   flex-wrap: wrap;
@@ -453,16 +475,7 @@ button:disabled { opacity: .48; cursor: not-allowed; }
 
 /* V6 obvious visual overrides */
 .version-watermark {
-  position: fixed;
-  left: 18px;
-  bottom: 18px;
-  z-index: 999;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(0,0,0,.72);
-  color: white;
-  font-weight: 800;
-  letter-spacing: .02em;
+  display: none;
 }
 
 .stage::after {

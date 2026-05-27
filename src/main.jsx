@@ -751,10 +751,10 @@ function App() {
       <div className="foreground-grass fg-b" />
 
       <div className="top-bar">
-        <div className="brand-pill"><DogIcon size={16} />Virtual Fetch Field · V8 v3-clean Model</div>
+        <div className="brand-pill"><DogIcon size={16} />Indoor Fetch</div>
         <div className="metric-row">
-          <div className="metric-card"><span>Match</span><strong>{confidence}</strong></div>
-          <div className="metric-card"><span>Phase</span><strong>{phase}</strong></div>
+          <div className="metric-card"><span>Motion</span><strong>{confidence}</strong></div>
+          <div className="metric-card"><span>Status</span><strong>{phase}</strong></div>
           <div className="metric-card"><span>Fetches</span><strong>{fetches}</strong></div>
         </div>
       </div>
@@ -816,20 +816,9 @@ function App() {
 
       <aside className="side-panel">
         <div className="panel-card">
-          <div className="panel-note">Uses the uploaded v3-clean gating/ready/release logic; the scene stays on the newer perspective grass field.</div>
+          <div className="panel-note">Stand in view, hold your throwing arm briefly, then toss forward and upward. The dog will chase the same ball target and bring it back.</div>
 
-          <div className="row two">
-            <select value={activeProfile?.id || ""} onChange={(e) => setActiveId(e.target.value)}>
-              {safeProfiles.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.trials?.length || 0} trials</option>)}
-            </select>
-            <select value={activeProfile?.handMode || "auto"} onChange={(e) => updateHandMode(e.target.value)}>
-              <option value="auto">Auto hand</option>
-              <option value="left">Left only</option>
-              <option value="right">Right only</option>
-            </select>
-          </div>
-
-          <div className="row four">
+          <div className="row four primary-controls">
             {!cameraOn ? (
               <button onClick={startCamera} disabled={starting}><Camera size={16} />{starting ? "Starting..." : "Start Camera"}</button>
             ) : (
@@ -846,6 +835,23 @@ function App() {
             <button className="secondary" onClick={resetScene}><RotateCcw size={16} />Reset</button>
           </div>
 
+          <p className="debug-text">{debug}</p>
+        </div>
+
+        <details className="panel-card advanced-panel">
+          <summary>Advanced setup</summary>
+
+          <div className="row two">
+            <select value={activeProfile?.id || ""} onChange={(e) => setActiveId(e.target.value)}>
+              {safeProfiles.map((p) => <option key={p.id} value={p.id}>{p.name} · {p.trials?.length || 0} trials</option>)}
+            </select>
+            <select value={activeProfile?.handMode || "auto"} onChange={(e) => updateHandMode(e.target.value)}>
+              <option value="auto">Auto hand</option>
+              <option value="left">Left only</option>
+              <option value="right">Right only</option>
+            </select>
+          </div>
+
           <div className="row three">
             <button onClick={captureReady} disabled={!cameraOn}>1. Set Ready</button>
             <button onClick={captureRelease} disabled={!cameraOn}>2. Set Release</button>
@@ -858,20 +864,17 @@ function App() {
             <span className={leftCount + rightCount ? "ok" : ""}>Models L{leftCount}/R{rightCount}</span>
           </div>
 
-          <p className="debug-text">{debug}</p>
-        </div>
-
-        <div className="panel-card stack-tools">
-          <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} placeholder="New participant" />
-          <button className="secondary" onClick={addProfile}><UserPlus size={16} />Add</button>
-          <button className="secondary danger" onClick={clearTrials}><Trash2 size={16} />Clear trials</button>
-          <button className="secondary" onClick={exportData}><Download size={16} />Export JSON</button>
-          <label className="secondary import-btn"><Upload size={16} />Import JSON<input type="file" accept="application/json" onChange={importData} /></label>
-        </div>
+          <div className="stack-tools">
+            <input value={nameInput} onChange={(e) => setNameInput(e.target.value)} placeholder="New participant" />
+            <button className="secondary" onClick={addProfile}><UserPlus size={16} />Add</button>
+            <button className="secondary danger" onClick={clearTrials}><Trash2 size={16} />Clear trials</button>
+            <button className="secondary" onClick={exportData}><Download size={16} />Export JSON</button>
+            <label className="secondary import-btn"><Upload size={16} />Import JSON<input type="file" accept="application/json" onChange={importData} /></label>
+          </div>
+        </details>
 
         {error && <div className="error-box">{error}</div>}
       </aside>
-      <div className="version-watermark">V8 · v3-clean model + precise fetch</div>
     </main>
   );
 }
