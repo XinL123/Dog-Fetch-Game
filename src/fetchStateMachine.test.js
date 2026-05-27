@@ -42,3 +42,17 @@ test("return state carries ball with dog, then drop restores waiting", () => {
   assert.equal(state.ball.visible, true);
   assert.equal(state.ball.carried, false);
 });
+
+test("completed fetch increments count even when a delayed tick skips to waiting", () => {
+  let state = updateFetchState(createInitialFetchState(), { type: "THROW", target, now: 100 });
+  state = updateFetchState(state, { type: "TICK", now: 6000 });
+  assert.equal(state.phase, "Waiting");
+  assert.equal(state.fetches, 1);
+});
+
+test("waiting state ignores tick events until the next throw", () => {
+  const waiting = createInitialFetchState();
+  const next = updateFetchState(waiting, { type: "TICK", now: 5000 });
+  assert.equal(next.phase, "Waiting");
+  assert.equal(next.fetches, 0);
+});

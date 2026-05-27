@@ -36,11 +36,13 @@ export function updateFetchState(state, event) {
   }
 
   if (event.type !== "TICK") return state;
+  if (state.phase === FETCH_PHASE.WAITING) return state;
 
   const elapsed = event.now - state.startedAt;
 
   if (elapsed >= 5600) {
-    return { ...state, phase: FETCH_PHASE.WAITING, startedAt: event.now, ball: { ...HOME_BALL }, dog: { ...HOME_DOG } };
+    const fetches = state.fetches + (state.phase === FETCH_PHASE.WAITING || state.phase === FETCH_PHASE.DROP_BALL ? 0 : 1);
+    return { ...state, phase: FETCH_PHASE.WAITING, startedAt: event.now, fetches, ball: { ...HOME_BALL }, dog: { ...HOME_DOG } };
   }
 
   if (elapsed >= 4700) {
