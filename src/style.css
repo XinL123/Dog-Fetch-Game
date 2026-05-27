@@ -1,0 +1,517 @@
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; min-height: 100%; }
+body { font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1710; }
+button, input, select { font: inherit; }
+button { border: 0; cursor: pointer; }
+
+.stage {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  color: #141414;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255,255,255,.58), transparent 18%),
+    linear-gradient(to bottom, #b4d7ee 0%, #d5ebf7 31%, #90aa63 32%, #73944f 44%, #52773a 60%, #355826 100%);
+}
+
+.sky-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 12%, rgba(255,255,255,.75), transparent 15%);
+  pointer-events: none;
+}
+
+.horizon-band {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  top: 28%;
+  height: 10%;
+  background: linear-gradient(to bottom, rgba(44,86,31,.45), rgba(42,91,32,.8));
+  filter: blur(7px);
+  opacity: .7;
+}
+
+.field-plane {
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  bottom: -8%;
+  height: 76%;
+  background: linear-gradient(to bottom, rgba(169,197,110,.9), rgba(100,145,63,.96) 55%, rgba(45,79,28,.98));
+  clip-path: polygon(0 10%, 100% 10%, 100% 100%, 0 100%);
+}
+
+.perspective-lines {
+  position: absolute;
+  left: 0;
+  right: 28%;
+  top: 28%;
+  bottom: 0;
+  background:
+    linear-gradient(0deg, rgba(255,255,255,.04), rgba(255,255,255,0)),
+    repeating-linear-gradient(100deg, transparent 0 52px, rgba(34,101,50,.42) 54px 58px, transparent 60px 124px),
+    repeating-linear-gradient(80deg, transparent 0 60px, rgba(18,88,38,.36) 62px 66px, transparent 68px 140px);
+  opacity: .72;
+  transform: perspective(950px) rotateX(58deg) scaleY(1.22);
+  transform-origin: center top;
+}
+
+.foreground-grass {
+  position: absolute;
+  bottom: -8%;
+  width: 50%;
+  height: 55%;
+  pointer-events: none;
+}
+
+.fg-a {
+  left: -3%;
+  background: repeating-linear-gradient(98deg, transparent 0 28px, rgba(17,100,49,.74) 29px 33px, transparent 34px 68px);
+  transform: rotate(-3deg);
+  opacity: .6;
+}
+
+.fg-b {
+  left: 24%;
+  background: repeating-linear-gradient(84deg, transparent 0 32px, rgba(12,91,43,.7) 33px 38px, transparent 40px 78px);
+  opacity: .46;
+}
+
+.top-bar {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  right: 390px;
+  z-index: 30;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.76);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.12);
+  font-weight: 700;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(100px, 1fr));
+  gap: 10px;
+  width: min(520px, 48vw);
+}
+
+.metric-card {
+  padding: 12px 14px;
+  border-radius: 22px;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.76);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.12);
+}
+
+.metric-card span {
+  display: block;
+  font-size: 12px;
+  color: rgba(0,0,0,.56);
+}
+.metric-card strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.pip-card {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  width: 340px;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 28px;
+  background: rgba(0,0,0,.64);
+  border: 1px solid rgba(255,255,255,.6);
+  box-shadow: 0 18px 60px rgba(0,0,0,.26);
+  z-index: 40;
+}
+
+.pip-video, .pip-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+.pip-canvas { pointer-events: none; }
+.pip-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(255,255,255,.78);
+  gap: 6px;
+}
+.pip-label {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.48);
+  color: white;
+  font-size: 12px;
+  backdrop-filter: blur(12px);
+}
+
+.arc {
+  position: absolute;
+  left: 20%;
+  top: 40%;
+  width: 44%;
+  height: 30%;
+  border-top: 4px dashed rgba(255,255,255,.8);
+  border-radius: 50% 50% 0 0;
+  transform-origin: center center;
+  pointer-events: none;
+  z-index: 18;
+}
+.arc-blue { border-color: rgba(49,134,255,.9); transform: rotate(-5deg); }
+.arc-red { border-color: rgba(228,89,72,.76); transform: rotate(-1deg) scale(0.93); }
+.motion-ribbon {
+  position: absolute;
+  left: 27%;
+  top: 66%;
+  width: 30%;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255,255,255,.9), rgba(66,160,255,.55), rgba(237,108,98,.22), transparent);
+  transform: rotate(-28deg);
+  transform-origin: left center;
+  box-shadow: 0 0 24px rgba(255,255,255,.45);
+  z-index: 17;
+}
+
+.ball {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 24;
+  background:
+    radial-gradient(circle at 32% 25%, #fff 0 8%, transparent 9%),
+    radial-gradient(circle at 50% 50%, #f0ede5 0 38%, #d2cdbf 39% 68%, #7c766c 100%);
+  border: 2px solid rgba(0,0,0,.3);
+  box-shadow: 0 10px 22px rgba(0,0,0,.24);
+}
+
+.dog-position {
+  position: absolute;
+  z-index: 23;
+  transform: translate(-50%, -50%);
+}
+
+.dog-actor {
+  position: relative;
+  width: 190px;
+  height: 116px;
+}
+.dog-shadow {
+  position: absolute;
+  left: 26px;
+  bottom: 0;
+  width: 132px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.24);
+  filter: blur(8px);
+}
+.dog-body {
+  position: absolute;
+  left: 34px;
+  top: 40px;
+  width: 92px;
+  height: 48px;
+  border-radius: 45% 48% 42% 44%;
+  background: linear-gradient(135deg, #79502f, #bb8b5a 46%, #5c351f);
+  box-shadow: inset -10px -8px 14px rgba(0,0,0,.22), inset 8px 7px 14px rgba(255,255,255,.14);
+}
+.dog-chest {
+  position: absolute;
+  left: 104px;
+  top: 50px;
+  width: 25px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(239,223,194,.84);
+  transform: rotate(-18deg);
+}
+.dog-head {
+  position: absolute;
+  left: 112px;
+  top: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 48% 52% 46% 50%;
+  background: linear-gradient(135deg, #95613a, #cc9c67 52%, #5f3721);
+  box-shadow: inset -8px -7px 12px rgba(0,0,0,.23);
+}
+.dog-ear {
+  position: absolute;
+  background: linear-gradient(160deg, #5f3721, #996139);
+  box-shadow: inset -4px -4px 7px rgba(0,0,0,.24);
+}
+.dog-ear-a { left: 116px; top: 16px; width: 18px; height: 34px; border-radius: 60% 40% 60% 50%; transform: rotate(22deg); }
+.dog-ear-b { left: 142px; top: 21px; width: 15px; height: 29px; border-radius: 60% 40% 60% 50%; transform: rotate(-26deg); }
+.dog-muzzle {
+  position: absolute;
+  left: 146px;
+  top: 46px;
+  width: 30px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ead7bf;
+  transform: rotate(8deg);
+}
+.dog-nose { position: absolute; left: 169px; top: 49px; width: 9px; height: 8px; border-radius: 50%; background: #15100d; }
+.dog-eye { position: absolute; left: 145px; top: 38px; width: 6px; height: 6px; border-radius: 50%; background: #15100d; box-shadow: 1px 1px 0 rgba(255,255,255,.4); }
+.dog-tail {
+  position: absolute;
+  left: 16px;
+  top: 48px;
+  width: 44px;
+  height: 13px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #5f3721, #a76b3e);
+  transform: rotate(-18deg);
+  transform-origin: right;
+}
+.dog-leg {
+  position: absolute;
+  width: 12px;
+  height: 40px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #84522f, #432515);
+}
+.leg-a { left: 48px; top: 78px; transform: rotate(3deg); }
+.leg-b { left: 76px; top: 78px; transform: rotate(-6deg); }
+.leg-c { left: 104px; top: 76px; transform: rotate(5deg); }
+.leg-d { left: 128px; top: 72px; transform: rotate(-6deg); }
+.carried-ball {
+  position: absolute;
+  left: 166px;
+  top: 58px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ece8d8;
+  border: 1px solid rgba(0,0,0,.28);
+}
+
+.side-panel {
+  position: absolute;
+  right: 22px;
+  top: 390px;
+  bottom: 22px;
+  width: 340px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panel-card {
+  padding: 14px;
+  border-radius: 26px;
+  background: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.76);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 16px 50px rgba(0,0,0,.14);
+}
+
+.panel-note {
+  margin-bottom: 10px;
+  color: rgba(0,0,0,.56);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.row + .row { margin-top: 10px; }
+.row.two > * { flex: 1 1 140px; }
+.row.three > * { flex: 1 1 90px; }
+.row.four > * { flex: 1 1 130px; }
+
+select, input {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,.12);
+  padding: 0 12px;
+  background: rgba(255,255,255,.88);
+}
+
+button, .import-btn {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #141414;
+  color: white;
+  font-weight: 700;
+}
+button.secondary, .import-btn {
+  background: rgba(255,255,255,.92);
+  color: #141414;
+  border: 1px solid rgba(0,0,0,.12);
+}
+button:disabled { opacity: .48; cursor: not-allowed; }
+.danger { color: #b42318 !important; }
+.import-btn input { display: none; }
+.stack-tools { display: flex; flex-direction: column; gap: 10px; }
+
+.status-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.status-tags span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.07);
+  color: rgba(0,0,0,.68);
+  font-size: 12px;
+  font-weight: 700;
+}
+.status-tags span.ok {
+  background: rgba(46,125,50,.14);
+  color: #1d6b29;
+}
+
+.debug-text {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(0,0,0,.65);
+}
+.error-box {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255,238,238,.95);
+  color: #b42318;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+}
+
+@media (max-width: 1100px) {
+  .top-bar { right: 22px; flex-direction: column; }
+  .metric-row { width: 100%; }
+  .pip-card { width: 280px; }
+  .side-panel { width: 300px; top: 340px; }
+}
+
+@media (max-width: 900px) {
+  .stage { min-height: 1300px; }
+  .top-bar { right: 22px; }
+  .pip-card {
+    position: absolute;
+    top: 170px;
+    left: 22px;
+    right: 22px;
+    width: auto;
+    max-width: none;
+  }
+  .side-panel {
+    position: absolute;
+    left: 22px;
+    right: 22px;
+    top: 390px;
+    width: auto;
+    bottom: 22px;
+  }
+  .perspective-lines { right: 0; }
+}
+
+
+/* V6 obvious visual overrides */
+.version-watermark {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 999;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.72);
+  color: white;
+  font-weight: 800;
+  letter-spacing: .02em;
+}
+
+.stage::after {
+  content: "V6 PERSPECTIVE FIELD";
+  position: absolute;
+  z-index: 8;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%) perspective(600px) rotateX(62deg);
+  font-size: min(7vw, 76px);
+  font-weight: 900;
+  letter-spacing: -.05em;
+  color: rgba(255,255,255,.12);
+  pointer-events: none;
+}
+
+.side-panel {
+  top: 250px !important;
+  width: 360px !important;
+  max-height: calc(100vh - 272px);
+  overflow: auto;
+}
+
+/* dog-position left is controlled by React motion state. */
+
+.field-plane {
+  clip-path: polygon(42% 0%, 58% 0%, 106% 100%, -6% 100%) !important;
+  background:
+    linear-gradient(to bottom, rgba(190, 212, 119, .9), rgba(103, 151, 64, .96) 55%, rgba(35, 72, 26, .98)) !important;
+}
+
+.perspective-lines {
+  right: 360px !important;
+  transform: perspective(900px) rotateX(68deg) scaleY(1.35) !important;
+  transform-origin: center top !important;
+  background:
+    linear-gradient(0deg, rgba(255,255,255,.03), rgba(255,255,255,0)),
+    repeating-conic-gradient(from -5deg at 50% 0%, rgba(25,90,36,.58) 0deg 1deg, transparent 1deg 8deg) !important;
+}
+
+.arc {
+  left: 23% !important;
+  top: 38% !important;
+  width: 40% !important;
+  height: 36% !important;
+  border-width: 5px !important;
+}
+
+/* V7 fixes: allow React/Framer to control dog position; V6 had left:18%!important so the dog could not chase the ball target. */
+.dog-position {
+  left: var(--dog-left, auto);
+}
