@@ -19,6 +19,13 @@ test("mapThrowToTarget uses lateral direction but keeps target in playable bound
   const left = mapThrowToTarget({ direction: { x: -2, y: -1 }, power: 1 });
   const right = mapThrowToTarget({ direction: { x: 2, y: -1 }, power: 1 });
   assert.ok(left.x < right.x);
+  assert.ok(right.x - left.x > 32);
   assert.ok(left.x >= 22);
   assert.ok(right.x <= 78);
+});
+
+test("mapThrowToTarget makes high power throws visibly farther than soft throws", () => {
+  const soft = mapThrowToTarget({ direction: { x: 0, y: -1 }, power: 0.45 });
+  const hard = mapThrowToTarget({ direction: { x: 0, y: -1 }, power: 1.85 });
+  assert.ok(soft.y - hard.y >= 13);
 });

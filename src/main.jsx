@@ -347,7 +347,7 @@ function App() {
     }
 
     if (playingRef.current && gesture.shouldFire && fetchStateRef.current.phase === FETCH_PHASE.WAITING) {
-      const target = mapThrowToTarget({ direction: gesture.direction, power: gesture.power });
+      const target = mapThrowToTarget({ direction: gesture.aimDirection || gesture.direction, power: gesture.power });
       const next = updateFetchState(fetchStateRef.current, { type: "THROW", target, now });
       fetchStateRef.current = next;
       setFetchState(next);

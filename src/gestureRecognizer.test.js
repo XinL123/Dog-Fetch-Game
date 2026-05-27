@@ -56,6 +56,59 @@ test("fires after ready hold plus sustained forward upward acceleration", () => 
   assert.ok(fire.power > 0.6);
 });
 
+test("returns left and right aim from the full throw displacement", () => {
+  const leftRecognizer = createGestureRecognizer();
+  const rightRecognizer = createGestureRecognizer();
+  const leftFrames = [
+    sample(0, 0.1, 0.23),
+    sample(180, 0.1, 0.22),
+    sample(360, 0.1, 0.22),
+    sample(520, 0.02, 0.1),
+    sample(620, -0.08, -0.02),
+    sample(720, -0.22, -0.16),
+  ];
+  const rightFrames = [
+    sample(0, 0.1, 0.23),
+    sample(180, 0.1, 0.22),
+    sample(360, 0.1, 0.22),
+    sample(520, 0.18, 0.1),
+    sample(620, 0.3, -0.02),
+    sample(720, 0.46, -0.16),
+  ];
+
+  const leftFire = leftFrames.map((frame) => leftRecognizer.update({ right: frame, left: null }, 1)).find((result) => result.shouldFire);
+  const rightFire = rightFrames.map((frame) => rightRecognizer.update({ right: frame, left: null }, 1)).find((result) => result.shouldFire);
+
+  assert.ok(leftFire.aimDirection.x < -0.35);
+  assert.ok(rightFire.aimDirection.x > 0.35);
+});
+
+test("returns more power for faster stronger arm swings", () => {
+  const softRecognizer = createGestureRecognizer();
+  const hardRecognizer = createGestureRecognizer();
+  const softFrames = [
+    sample(0, 0.1, 0.23),
+    sample(180, 0.1, 0.22),
+    sample(360, 0.1, 0.22),
+    sample(540, 0.14, 0.13),
+    sample(720, 0.19, 0.03),
+    sample(900, 0.25, -0.08),
+  ];
+  const hardFrames = [
+    sample(0, 0.1, 0.23),
+    sample(180, 0.1, 0.22),
+    sample(360, 0.1, 0.22),
+    sample(500, 0.19, 0.07),
+    sample(590, 0.33, -0.08),
+    sample(680, 0.52, -0.26),
+  ];
+
+  const softFire = softFrames.map((frame) => softRecognizer.update({ right: frame, left: null }, 1)).find((result) => result.shouldFire);
+  const hardFire = hardFrames.map((frame) => hardRecognizer.update({ right: frame, left: null }, 1)).find((result) => result.shouldFire);
+
+  assert.ok(hardFire.power > softFire.power + 0.25);
+});
+
 test("cooldown blocks repeated throws", () => {
   const recognizer = createGestureRecognizer({ cooldownMs: 1500 });
   const first = [

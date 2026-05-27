@@ -87,8 +87,10 @@ export function createGestureRecognizer(options = {}) {
     const velocity = { x: (current.x - prevPoint.x) / dt, y: (current.y - prevPoint.y) / dt };
     const speed = magnitude(velocity);
     const direction = normalize(velocity);
-    const progress = distance(current, readyPoint);
-    const validDirection = direction.y < -0.38 && Math.abs(direction.x) < 0.92;
+    const throwVector = { x: current.x - readyPoint.x, y: current.y - readyPoint.y };
+    const aimDirection = normalize(throwVector);
+    const progress = magnitude(throwVector);
+    const validDirection = direction.y < -0.32 && aimDirection.y < -0.28 && Math.abs(direction.x) < 0.98;
     const validSwing = speed >= config.minSwingSpeed && progress >= config.minReleaseProgress && validDirection;
 
     if (validSwing) {
@@ -104,14 +106,14 @@ export function createGestureRecognizer(options = {}) {
     if (shouldFire) {
       lastFireAt = now;
       state = "Release Confirmed";
-      const power = clamp((speed * 0.55 + progress * 2.2) * powerScale, 0.5, 1.6);
-      const result = { phase: state, shouldFire: true, side: sample.side, score, speed, progress, direction, power, debug: "Throw released" };
+      const power = clamp((0.35 + speed * 0.28 + progress * 1.25) * powerScale, 0.45, 1.9);
+      const result = { phase: state, shouldFire: true, side: sample.side, score, speed, progress, direction, aimDirection, power, debug: "Throw released" };
       readyPoint = null;
       swingFrames = 0;
       return result;
     }
 
-    return { phase: state, shouldFire: false, side: sample.side, score, speed, progress, direction, debug: validDirection ? "Swing faster" : "Throw forward and upward" };
+    return { phase: state, shouldFire: false, side: sample.side, score, speed, progress, direction, aimDirection, debug: validDirection ? "Swing faster" : "Throw forward and upward" };
   }
 
   return { update };
