@@ -18,6 +18,7 @@ import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
 import { createGestureRecognizer } from "./gestureRecognizer.js";
 import { createInitialFetchState, updateFetchState, FETCH_PHASE } from "./fetchStateMachine.js";
 import { mapThrowToTarget } from "./sceneMapping.js";
+import { getCameraErrorMessage } from "./cameraErrors.js";
 import "./style.css";
 
 const GAME = {
@@ -273,7 +274,7 @@ function App() {
       setDebug("Camera ready. Press Start Playing, hold your arm briefly, then throw naturally.");
       startLoop();
     } catch (e) {
-      setError(e?.message || String(e));
+      setError(getCameraErrorMessage(e));
       setStatus("camera/model failed");
     } finally {
       setStarting(false);
