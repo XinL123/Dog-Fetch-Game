@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
+import { createGestureRecognizer } from "./gestureRecognizer.js";
+import { createInitialFetchState, updateFetchState, FETCH_PHASE } from "./fetchStateMachine.js";
+import { mapThrowToTarget } from "./sceneMapping.js";
 import "./style.css";
 
 const GAME = {
@@ -172,6 +175,8 @@ function App() {
   const latestRef = useRef({ left: null, right: null });
   const historyRef = useRef({ left: [], right: [] });
   const gateRef = useRef({ phase: "WAIT_READY", side: null, model: null, readyAt: 0, minProgress: 0 });
+  const gestureRef = useRef(createGestureRecognizer());
+  const fetchStateRef = useRef(createInitialFetchState());
   const playingRef = useRef(false);
   const lastFireRef = useRef(0);
 
@@ -189,15 +194,17 @@ function App() {
   const [playing, setPlaying] = useState(false);
   const [status, setStatus] = useState("camera off");
   const [trackedHand, setTrackedHand] = useState("none");
-  const [phase, setPhase] = useState("Need calibration");
+  const [phase, setPhase] = useState("Step into view");
   const [confidence, setConfidence] = useState(0);
-  const [debug, setDebug] = useState("Start Camera → Set Ready → Set Release → Save Trial.");
+  const [debug, setDebug] = useState("Start camera, press Start Playing, then hold your arm briefly and throw naturally.");
   const [error, setError] = useState("");
-  const [game, setGame] = useState(GAME.WATCHING);
-  const [ball, setBall] = useState({ x: 32, y: 76, scale: 1, visible: true });
-  const [dog, setDog] = useState({ x: 18, y: 80, scale: 1 });
-  const [fetches, setFetches] = useState(0);
+  const [fetchState, setFetchState] = useState(createInitialFetchState);
   const [throwFX, setThrowFX] = useState(false);
+
+  const ball = fetchState.ball;
+  const dog = fetchState.dog;
+  const fetches = fetchState.fetches;
+  const gamePhase = fetchState.phase;
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(safeProfiles));
@@ -206,12 +213,27 @@ function App() {
   useEffect(() => {
     modelsRef.current = models;
     profileRef.current = activeProfile;
-    setPhase(hasAnyModel(models) ? "Model ready" : "Need calibration");
   }, [models, activeProfile]);
 
   useEffect(() => {
     playingRef.current = playing;
   }, [playing]);
+
+  useEffect(() => {
+    let frame = 0;
+    const tick = () => {
+      const next = updateFetchState(fetchStateRef.current, { type: "TICK", now: performance.now() });
+      if (next !== fetchStateRef.current) {
+        fetchStateRef.current = next;
+        setFetchState(next);
+        setPhase(next.phase === FETCH_PHASE.WAITING ? (playingRef.current ? "Ready Hold" : "Paused") : next.phase);
+        if (next.phase === FETCH_PHASE.WAITING) setThrowFX(false);
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     return () => stopCamera();
@@ -248,7 +270,7 @@ function App() {
       await videoRef.current.play();
       setCameraOn(true);
       setStatus("tracking");
-      setDebug(hasAnyModel(modelsRef.current) ? "Model ready. You can import v3-clean JSON and Start Playing." : "Capture Ready and Release first.");
+      setDebug("Camera ready. Press Start Playing, hold your arm briefly, then throw naturally.");
       startLoop();
     } catch (e) {
       setError(e?.message || String(e));
@@ -272,6 +294,7 @@ function App() {
     playingRef.current = false;
     setStatus("camera off");
     setConfidence(0);
+    resetScene();
     clearOverlay();
   }
 
@@ -315,21 +338,21 @@ function App() {
     setTrackedHand(visible?.side || "none");
     setStatus(visible ? "pose ok" : "arm incomplete");
 
-    if (!hasAnyModel(modelsRef.current)) {
-      setConfidence(0);
-      setPhase("Need calibration");
-      return;
+    const gesture = gestureRef.current.update({ left, right }, 1, profileRef.current?.handMode || "auto");
+    setConfidence(gesture.score || 0);
+    if (fetchStateRef.current.phase === FETCH_PHASE.WAITING) {
+      setPhase(playingRef.current ? gesture.phase : "Paused");
+      setDebug(playingRef.current ? (gesture.debug || "") : "Press Start Playing when you are ready.");
     }
 
-    const evaluation = evaluateAll({ left, right }, modelsRef.current, profileRef.current, now, game);
-    setConfidence(evaluation.score);
-    setPhase(evaluation.phase);
-    setDebug(evaluation.debug);
-
-    if (evaluation.shouldFire) {
-      lastFireRef.current = now;
-      gateRef.current = { phase: "WAIT_READY", side: null, model: null, readyAt: 0, minProgress: 0 };
-      triggerThrow(evaluation, clamp(1 + evaluation.progressRatio * 0.35 + evaluation.speed * 0.08, 0.95, 1.55));
+    if (playingRef.current && gesture.shouldFire && fetchStateRef.current.phase === FETCH_PHASE.WAITING) {
+      const target = mapThrowToTarget({ direction: gesture.direction, power: gesture.power });
+      const next = updateFetchState(fetchStateRef.current, { type: "THROW", target, now });
+      fetchStateRef.current = next;
+      setFetchState(next);
+      setThrowFX(true);
+      setPhase("Throw!");
+      setDebug("Nice throw. The dog is tracking the ball.");
     }
   }
 
@@ -554,19 +577,20 @@ function App() {
   }
 
   function startPlaying() {
-    if (!hasAnyModel(modelsRef.current)) return setDebug("No model yet. Import your v3-clean JSON or save a trial first.");
     setPlaying(true);
     playingRef.current = true;
     gateRef.current = { phase: "WAIT_READY", side: null, model: null, readyAt: 0, minProgress: 0 };
-    setPhase("Find Ready");
-    setDebug("Playing: move into any saved Ready pose, then throw toward its matching Release.");
+    gestureRef.current = createGestureRecognizer();
+    setPhase("Ready Hold");
+    setDebug("Hold your throwing arm briefly, then toss forward and upward.");
   }
 
   function pausePlaying() {
     setPlaying(false);
     playingRef.current = false;
     gateRef.current = { phase: "WAIT_READY", side: null, model: null, readyAt: 0, minProgress: 0 };
-    setPhase(hasAnyModel(modelsRef.current) ? "Model ready" : "Need calibration");
+    setPhase("Paused");
+    setDebug("Paused. Press Start Playing to continue.");
   }
 
   function computeThrowTarget(evaluation, power = 1.2) {
@@ -585,55 +609,29 @@ function App() {
   }
 
   function triggerThrow(evaluationOrPower = null, maybePower) {
-    timersRef.current.forEach(clearTimeout);
-    timersRef.current = [];
-    setThrowFX(true);
-    setGame(GAME.SWING);
-
     const evaluation = typeof evaluationOrPower === "object" ? evaluationOrPower : null;
     const power = typeof evaluationOrPower === "number" ? evaluationOrPower : maybePower || 1.2;
-    const target = computeThrowTarget(evaluation, power);
-    const targetX = target.x;
-    const targetY = target.y;
-
-    timersRef.current.push(setTimeout(() => {
-      setGame(GAME.FLYING);
-      setBall({ x: targetX, y: targetY, scale: target.ballScale, visible: true });
-    }, 120));
-
-    timersRef.current.push(setTimeout(() => {
-      setGame(GAME.FETCHING);
-      // Use the exact same throw target, with only a tiny mouth/body offset, so the dog follows the ball direction.
-      setDog({ x: targetX - 4, y: targetY + 1, scale: target.dogScale });
-    }, 950));
-
-    timersRef.current.push(setTimeout(() => {
-      setGame(GAME.RETURNING);
-      setDog({ x: 18, y: 80, scale: 1 });
-      setBall({ x: targetX, y: targetY, scale: target.ballScale, visible: false });
-      setFetches((f) => f + 1);
-    }, 3150));
-
-    timersRef.current.push(setTimeout(() => {
-      setGame(GAME.WATCHING);
-      setBall({ x: 32, y: 76, scale: 1, visible: true });
-      setDog({ x: 18, y: 80, scale: 1 });
-      setThrowFX(false);
-      setConfidence(0);
-      gateRef.current = { phase: "WAIT_READY", side: null, model: null, readyAt: 0, minProgress: 0 };
-      setPhase(playingRef.current ? "Find Ready" : hasAnyModel(modelsRef.current) ? "Model ready" : "Need calibration");
-    }, 5200));
+    const target = mapThrowToTarget({ direction: evaluation?.direction || { x: 0, y: -1 }, power });
+    const next = updateFetchState(createInitialFetchState(), { type: "THROW", target, now: performance.now() });
+    fetchStateRef.current = next;
+    setFetchState(next);
+    setThrowFX(true);
+    setPhase("Test Throw");
+    setDebug("Test throw launched. Watch the dog track the same target.");
   }
 
   function resetScene() {
     timersRef.current.forEach(clearTimeout);
     timersRef.current = [];
     setThrowFX(false);
-    setGame(GAME.WATCHING);
-    setBall({ x: 32, y: 76, scale: 1, visible: true });
-    setDog({ x: 18, y: 80, scale: 1 });
+    const next = createInitialFetchState();
+    fetchStateRef.current = next;
+    setFetchState(next);
+    gestureRef.current = createGestureRecognizer();
     gateRef.current = { phase: "WAIT_READY", side: null, model: null, readyAt: 0, minProgress: 0 };
     setConfidence(0);
+    setPhase("Ready");
+    setDebug("Step into view, hold your arm briefly, then throw naturally.");
   }
 
   function addProfile() {
@@ -803,7 +801,7 @@ function App() {
             initial={{ opacity: 0 }}
             animate={{ left: `${ball.x}%`, top: `${ball.y}%`, scale: ball.scale, opacity: 1 }}
             exit={{ opacity: 0, scale: 0.25 }}
-            transition={{ type: "spring", stiffness: game === GAME.FLYING ? 38 : 95, damping: 12 }}
+            transition={{ type: "spring", stiffness: gamePhase === FETCH_PHASE.BALL_FLYING ? 38 : 95, damping: 12 }}
           />
         )}
       </AnimatePresence>
@@ -813,7 +811,7 @@ function App() {
         animate={{ left: `${dog.x}%`, top: `${dog.y}%`, scale: dog.scale }}
         transition={{ type: "spring", stiffness: 46, damping: 14 }}
       >
-        <RealisticDog running={game === GAME.FETCHING || game === GAME.RETURNING} carrying={game === GAME.RETURNING} />
+        <RealisticDog running={gamePhase === FETCH_PHASE.RUN_TO_BALL || gamePhase === FETCH_PHASE.RETURN_TO_USER} carrying={dog.carrying} />
       </motion.div>
 
       <aside className="side-panel">
