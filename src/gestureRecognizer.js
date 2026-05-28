@@ -90,7 +90,9 @@ export function createGestureRecognizer(options = {}) {
     const throwVector = { x: current.x - readyPoint.x, y: current.y - readyPoint.y };
     const aimDirection = normalize(throwVector);
     const progress = magnitude(throwVector);
-    const validDirection = direction.y < -0.32 && aimDirection.y < -0.28 && Math.abs(direction.x) < 0.98;
+    const purposefulAim = Math.abs(aimDirection.x) > 0.45 || aimDirection.y < -0.22;
+    const notDropping = direction.y < 0.25 && aimDirection.y < 0.25;
+    const validDirection = purposefulAim && notDropping;
     const validSwing = speed >= config.minSwingSpeed && progress >= config.minReleaseProgress && validDirection;
 
     if (validSwing) {
@@ -113,7 +115,7 @@ export function createGestureRecognizer(options = {}) {
       return result;
     }
 
-    return { phase: state, shouldFire: false, side: sample.side, score, speed, progress, direction, aimDirection, debug: validDirection ? "Swing faster" : "Throw forward and upward" };
+    return { phase: state, shouldFire: false, side: sample.side, score, speed, progress, direction, aimDirection, debug: validDirection ? "Swing faster" : "Throw left, right, or forward" };
   }
 
   return { update };
