@@ -24,3 +24,11 @@ export function mapThrowToTarget({ direction, power = 1 }) {
     dogScale: clamp(0.74 - throwPower * 0.1, 0.46, 0.68),
   };
 }
+
+export function mapCameraThrowToTarget({ direction, power = 1 }) {
+  const cameraDirection = direction || { x: 0, y: -1 };
+  return mapThrowToTarget({
+    direction: { ...cameraDirection, x: -cameraDirection.x },
+    power,
+  });
+}

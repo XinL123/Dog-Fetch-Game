@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { clamp, mapThrowToTarget } from "./sceneMapping.js";
+import { clamp, mapCameraThrowToTarget, mapThrowToTarget } from "./sceneMapping.js";
 
 test("clamp keeps values within range", () => {
   assert.equal(clamp(5, 0, 10), 5);
@@ -28,4 +28,11 @@ test("mapThrowToTarget makes high power throws visibly farther than soft throws"
   const soft = mapThrowToTarget({ direction: { x: 0, y: -1 }, power: 0.45 });
   const hard = mapThrowToTarget({ direction: { x: 0, y: -1 }, power: 1.85 });
   assert.ok(soft.y - hard.y >= 13);
+});
+
+test("mapCameraThrowToTarget corrects mirrored camera coordinates", () => {
+  const userLeftThrow = mapCameraThrowToTarget({ direction: { x: 1, y: -0.35 }, power: 1 });
+  const userRightThrow = mapCameraThrowToTarget({ direction: { x: -1, y: -0.35 }, power: 1 });
+  assert.ok(userLeftThrow.x < 50);
+  assert.ok(userRightThrow.x > 50);
 });

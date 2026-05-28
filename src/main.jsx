@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision";
 import { createGestureRecognizer } from "./gestureRecognizer.js";
 import { createInitialFetchState, updateFetchState, FETCH_PHASE } from "./fetchStateMachine.js";
-import { mapThrowToTarget } from "./sceneMapping.js";
+import { mapCameraThrowToTarget, mapThrowToTarget } from "./sceneMapping.js";
 import { getCameraErrorMessage } from "./cameraErrors.js";
 import "./style.css";
 
@@ -142,23 +142,11 @@ function RealisticDog({ running, carrying }) {
   return (
     <motion.div
       className="dog-actor"
-      animate={{ y: running ? [0, -5, 0, -2, 0] : [0, -1, 0], rotate: running ? [0, -1, 1, 0] : 0 }}
-      transition={{ duration: running ? 0.58 : 1.2, repeat: Infinity, ease: "easeInOut" }}
+      animate={{ y: running ? [0, -7, 0, -3, 0] : [0, -1, 0], rotate: running ? [0, -1.5, 1.5, 0] : 0 }}
+      transition={{ duration: running ? 0.56 : 1.4, repeat: Infinity, ease: "easeInOut" }}
     >
       <div className="dog-shadow" />
-      <div className="dog-body" />
-      <div className="dog-chest" />
-      <div className="dog-head" />
-      <div className="dog-ear dog-ear-a" />
-      <div className="dog-ear dog-ear-b" />
-      <div className="dog-muzzle" />
-      <div className="dog-nose" />
-      <div className="dog-eye" />
-      <div className="dog-tail" />
-      <div className="dog-leg leg-a" />
-      <div className="dog-leg leg-b" />
-      <div className="dog-leg leg-c" />
-      <div className="dog-leg leg-d" />
+      <img className="dog-photo" src="/assets/golden-retriever.png" alt="Golden retriever waiting to fetch" draggable="false" />
       {carrying && <div className="carried-ball" />}
     </motion.div>
   );
@@ -206,6 +194,10 @@ function App() {
   const dog = fetchState.dog;
   const fetches = fetchState.fetches;
   const gamePhase = fetchState.phase;
+  const dogBusy = gamePhase !== FETCH_PHASE.WAITING;
+  const playHint = dogBusy
+    ? "Wait for the dog to bring the ball back before throwing again."
+    : "Stand in view, hold your throwing arm briefly, then toss left, right, or forward.";
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(safeProfiles));
@@ -347,7 +339,7 @@ function App() {
     }
 
     if (playingRef.current && gesture.shouldFire && fetchStateRef.current.phase === FETCH_PHASE.WAITING) {
-      const target = mapThrowToTarget({ direction: gesture.aimDirection || gesture.direction, power: gesture.power });
+      const target = mapCameraThrowToTarget({ direction: gesture.aimDirection || gesture.direction, power: gesture.power });
       const next = updateFetchState(fetchStateRef.current, { type: "THROW", target, now });
       fetchStateRef.current = next;
       setFetchState(next);
@@ -610,6 +602,10 @@ function App() {
   }
 
   function triggerThrow(evaluationOrPower = null, maybePower) {
+    if (fetchStateRef.current.phase !== FETCH_PHASE.WAITING) {
+      setDebug("Wait for the dog to bring the ball back before throwing again.");
+      return;
+    }
     const evaluation = typeof evaluationOrPower === "object" ? evaluationOrPower : null;
     const power = typeof evaluationOrPower === "number" ? evaluationOrPower : maybePower || 1.2;
     const target = mapThrowToTarget({ direction: evaluation?.direction || { x: 0, y: -1 }, power });
@@ -817,7 +813,7 @@ function App() {
 
       <aside className="side-panel">
         <div className="panel-card">
-          <div className="panel-note">Stand in view, hold your throwing arm briefly, then toss forward and upward. The dog will chase the same ball target and bring it back.</div>
+          <div className={`panel-note ${dogBusy ? "busy-note" : ""}`}>{playHint}</div>
 
           <div className="row four primary-controls">
             {!cameraOn ? (
@@ -827,12 +823,12 @@ function App() {
             )}
 
             {!playing ? (
-              <button className="secondary" onClick={startPlaying}><Play size={16} />Start Playing</button>
+              <button className="secondary" onClick={startPlaying} disabled={dogBusy}><Play size={16} />Start Playing</button>
             ) : (
               <button className="secondary" onClick={pausePlaying}><Pause size={16} />Pause</button>
             )}
 
-            <button className="secondary" onClick={() => triggerThrow(1.2)}>Test Throw</button>
+            <button className="secondary" onClick={() => triggerThrow(1.2)} disabled={dogBusy}>Test Throw</button>
             <button className="secondary" onClick={resetScene}><RotateCcw size={16} />Reset</button>
           </div>
 
