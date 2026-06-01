@@ -10,7 +10,7 @@ button { border: 0; cursor: pointer; }
   overflow: hidden;
   color: #141414;
   background:
-    linear-gradient(to bottom, rgba(255,255,255,.12), rgba(255,255,255,0) 30%, rgba(14,33,16,.18) 100%),
+    linear-gradient(to bottom, rgba(255,255,255,.12), rgba(255,255,255,0) 32%, rgba(19,44,16,.16) 100%),
     url("/assets/park-field.png") center / cover no-repeat;
 }
 
@@ -27,21 +27,16 @@ button { border: 0; cursor: pointer; }
   right: -5%;
   top: 28%;
   height: 10%;
-  background: linear-gradient(to bottom, rgba(44,86,31,.45), rgba(42,91,32,.8));
-  filter: blur(7px);
-  opacity: .7;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(38,77,31,.16));
+  filter: blur(10px);
+  opacity: .45;
 }
 
 .field-plane {
   position: absolute;
-  left: -10%;
-  right: -10%;
-  bottom: -8%;
-  height: 76%;
-  background:
-    linear-gradient(to bottom, rgba(149,190,78,.02), rgba(79,121,38,.18) 55%, rgba(26,58,18,.34)),
-    url("/assets/park-field.png") center bottom / cover no-repeat;
-  clip-path: polygon(0 10%, 100% 10%, 100% 100%, 0 100%);
+  inset: 31% 0 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(35,73,22,.18) 62%, rgba(20,50,15,.28));
+  pointer-events: none;
 }
 
 .perspective-lines {
@@ -51,8 +46,8 @@ button { border: 0; cursor: pointer; }
   top: 28%;
   bottom: 0;
   background: linear-gradient(0deg, rgba(30,64,20,.16), rgba(255,255,255,0));
-  opacity: .38;
-  transform: perspective(950px) rotateX(58deg) scaleY(1.22);
+  opacity: .18;
+  transform: none;
   transform-origin: center top;
 }
 
@@ -68,13 +63,13 @@ button { border: 0; cursor: pointer; }
   left: -3%;
   background: repeating-linear-gradient(98deg, transparent 0 28px, rgba(17,100,49,.74) 29px 33px, transparent 34px 68px);
   transform: rotate(-3deg);
-  opacity: .6;
+  opacity: .2;
 }
 
 .fg-b {
   left: 24%;
   background: repeating-linear-gradient(84deg, transparent 0 32px, rgba(12,91,43,.7) 33px 38px, transparent 40px 78px);
-  opacity: .46;
+  opacity: .18;
 }
 
 .top-bar {
@@ -223,85 +218,99 @@ button { border: 0; cursor: pointer; }
 
 .dog-actor {
   position: relative;
-  width: 170px;
-  height: 190px;
+  width: 198px;
+  height: 138px;
 }
 .dog-shadow {
   position: absolute;
   left: 20px;
-  bottom: 3px;
-  width: 132px;
-  height: 22px;
+  bottom: 0;
+  width: 148px;
+  height: 25px;
   border-radius: 50%;
   background: rgba(0,0,0,.28);
   filter: blur(9px);
 }
-.dog-photo {
-  position: absolute;
-  left: 14px;
-  bottom: 18px;
-  width: 140px;
-  height: 164px;
-  object-fit: cover;
-  object-position: 50% 16%;
-  border-radius: 46% 46% 36% 36%;
-  box-shadow: 0 18px 34px rgba(0,0,0,.22);
-  user-select: none;
-}
 .dog-body {
   position: absolute;
-  left: 34px;
-  top: 40px;
-  width: 92px;
-  height: 48px;
-  border-radius: 45% 48% 42% 44%;
-  background: linear-gradient(135deg, #79502f, #bb8b5a 46%, #5c351f);
-  box-shadow: inset -10px -8px 14px rgba(0,0,0,.22), inset 8px 7px 14px rgba(255,255,255,.14);
+  left: 30px;
+  top: 50px;
+  width: 108px;
+  height: 58px;
+  border-radius: 48% 46% 42% 44%;
+  background:
+    radial-gradient(circle at 34% 24%, rgba(255,237,191,.75), transparent 28%),
+    linear-gradient(135deg, #a56b32, #d8aa61 46%, #7b481f);
+  box-shadow: inset -12px -9px 16px rgba(82,45,17,.25), inset 9px 7px 16px rgba(255,246,213,.2);
 }
 .dog-chest {
   position: absolute;
-  left: 104px;
-  top: 50px;
-  width: 25px;
-  height: 34px;
+  left: 112px;
+  top: 60px;
+  width: 30px;
+  height: 38px;
   border-radius: 50%;
   background: rgba(239,223,194,.84);
   transform: rotate(-18deg);
 }
 .dog-head {
   position: absolute;
-  left: 112px;
+  left: 120px;
   top: 24px;
-  width: 48px;
-  height: 48px;
+  width: 54px;
+  height: 54px;
   border-radius: 48% 52% 46% 50%;
-  background: linear-gradient(135deg, #95613a, #cc9c67 52%, #5f3721);
+  background:
+    radial-gradient(circle at 42% 22%, rgba(255,238,190,.7), transparent 22%),
+    linear-gradient(135deg, #9f6935, #d6a75e 52%, #70421f);
   box-shadow: inset -8px -7px 12px rgba(0,0,0,.23);
+}
+.dog-neck-fur {
+  position: absolute;
+  left: 103px;
+  top: 55px;
+  width: 34px;
+  height: 48px;
+  border-radius: 52% 40% 50% 46%;
+  background: repeating-linear-gradient(100deg, #efd394 0 4px, #c98d45 5px 8px);
+  opacity: .92;
+  transform: rotate(-12deg);
 }
 .dog-ear {
   position: absolute;
   background: linear-gradient(160deg, #5f3721, #996139);
   box-shadow: inset -4px -4px 7px rgba(0,0,0,.24);
 }
-.dog-ear-a { left: 116px; top: 16px; width: 18px; height: 34px; border-radius: 60% 40% 60% 50%; transform: rotate(22deg); }
-.dog-ear-b { left: 142px; top: 21px; width: 15px; height: 29px; border-radius: 60% 40% 60% 50%; transform: rotate(-26deg); }
+.dog-ear-a { left: 120px; top: 18px; width: 20px; height: 39px; border-radius: 60% 40% 60% 50%; transform: rotate(22deg); }
+.dog-ear-b { left: 150px; top: 22px; width: 18px; height: 34px; border-radius: 60% 40% 60% 50%; transform: rotate(-26deg); }
 .dog-muzzle {
   position: absolute;
-  left: 146px;
-  top: 46px;
-  width: 30px;
-  height: 18px;
+  left: 154px;
+  top: 50px;
+  width: 34px;
+  height: 20px;
   border-radius: 50%;
   background: #ead7bf;
   transform: rotate(8deg);
 }
-.dog-nose { position: absolute; left: 169px; top: 49px; width: 9px; height: 8px; border-radius: 50%; background: #15100d; }
-.dog-eye { position: absolute; left: 145px; top: 38px; width: 6px; height: 6px; border-radius: 50%; background: #15100d; box-shadow: 1px 1px 0 rgba(255,255,255,.4); }
+.dog-nose { position: absolute; left: 181px; top: 54px; width: 10px; height: 8px; border-radius: 50%; background: #15100d; }
+.dog-eye { position: absolute; top: 40px; width: 6px; height: 6px; border-radius: 50%; background: #15100d; box-shadow: 1px 1px 0 rgba(255,255,255,.4); }
+.eye-a { left: 144px; }
+.eye-b { left: 162px; }
+.dog-mouth {
+  position: absolute;
+  left: 170px;
+  top: 64px;
+  width: 15px;
+  height: 7px;
+  border-bottom: 2px solid rgba(55,28,14,.75);
+  border-radius: 50%;
+}
 .dog-tail {
   position: absolute;
-  left: 16px;
-  top: 48px;
-  width: 44px;
+  left: 7px;
+  top: 55px;
+  width: 50px;
   height: 13px;
   border-radius: 999px;
   background: linear-gradient(90deg, #5f3721, #a76b3e);
@@ -315,10 +324,10 @@ button { border: 0; cursor: pointer; }
   border-radius: 999px;
   background: linear-gradient(180deg, #84522f, #432515);
 }
-.leg-a { left: 48px; top: 78px; transform: rotate(3deg); }
-.leg-b { left: 76px; top: 78px; transform: rotate(-6deg); }
-.leg-c { left: 104px; top: 76px; transform: rotate(5deg); }
-.leg-d { left: 128px; top: 72px; transform: rotate(-6deg); }
+.leg-a { left: 48px; top: 88px; transform: rotate(3deg); }
+.leg-b { left: 78px; top: 88px; transform: rotate(-6deg); }
+.leg-c { left: 112px; top: 86px; transform: rotate(5deg); }
+.leg-d { left: 140px; top: 82px; transform: rotate(-6deg); }
 .carried-ball {
   position: absolute;
   left: 110px;
@@ -516,18 +525,16 @@ button:disabled { opacity: .48; cursor: not-allowed; }
 /* dog-position left is controlled by React motion state. */
 
 .field-plane {
-  clip-path: polygon(42% 0%, 58% 0%, 106% 100%, -6% 100%) !important;
-  background:
-    linear-gradient(to bottom, rgba(165, 205, 90, .04), rgba(78, 122, 42, .16) 58%, rgba(24, 62, 20, .32)),
-    url("/assets/park-field.png") center bottom / cover no-repeat !important;
+  clip-path: none !important;
+  background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(31,78,25,.15) 62%, rgba(18,53,16,.28)) !important;
 }
 
 .perspective-lines {
   right: 360px !important;
-  transform: perspective(900px) rotateX(68deg) scaleY(1.35) !important;
+  transform: none !important;
   transform-origin: center top !important;
   background: linear-gradient(0deg, rgba(28,75,30,.14), rgba(255,255,255,0)) !important;
-  opacity: .42;
+  opacity: .16;
 }
 
 .arc {

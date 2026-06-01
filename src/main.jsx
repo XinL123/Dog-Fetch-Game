@@ -146,7 +146,22 @@ function RealisticDog({ running, carrying }) {
       transition={{ duration: running ? 0.56 : 1.4, repeat: Infinity, ease: "easeInOut" }}
     >
       <div className="dog-shadow" />
-      <img className="dog-photo" src="/assets/golden-retriever.png" alt="Golden retriever waiting to fetch" draggable="false" />
+      <div className="dog-tail" />
+      <div className="dog-body" />
+      <div className="dog-chest" />
+      <div className="dog-neck-fur" />
+      <div className="dog-head" />
+      <div className="dog-ear dog-ear-a" />
+      <div className="dog-ear dog-ear-b" />
+      <div className="dog-muzzle" />
+      <div className="dog-nose" />
+      <div className="dog-eye eye-a" />
+      <div className="dog-eye eye-b" />
+      <div className="dog-mouth" />
+      <div className="dog-leg leg-a" />
+      <div className="dog-leg leg-b" />
+      <div className="dog-leg leg-c" />
+      <div className="dog-leg leg-d" />
       {carrying && <div className="carried-ball" />}
     </motion.div>
   );

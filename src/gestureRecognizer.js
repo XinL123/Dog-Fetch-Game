@@ -1,10 +1,10 @@
 import { clamp, magnitude, normalize } from "./sceneMapping.js";
 
 const DEFAULTS = {
-  readyMinMs: 300,
-  readyMaxMovement: 0.055,
-  minSwingSpeed: 0.62,
-  minReleaseProgress: 0.2,
+  readyMinMs: 180,
+  readyMaxMovement: 0.09,
+  minSwingSpeed: 0.42,
+  minReleaseProgress: 0.14,
   consecutiveSwingFrames: 2,
   cooldownMs: 1600,
   historyMs: 900,
@@ -90,9 +90,8 @@ export function createGestureRecognizer(options = {}) {
     const throwVector = { x: current.x - readyPoint.x, y: current.y - readyPoint.y };
     const aimDirection = normalize(throwVector);
     const progress = magnitude(throwVector);
-    const purposefulAim = Math.abs(aimDirection.x) > 0.45 || aimDirection.y < -0.22;
-    const notDropping = direction.y < 0.25 && aimDirection.y < 0.25;
-    const validDirection = purposefulAim && notDropping;
+    const purposefulAim = progress >= config.minReleaseProgress;
+    const validDirection = purposefulAim;
     const validSwing = speed >= config.minSwingSpeed && progress >= config.minReleaseProgress && validDirection;
 
     if (validSwing) {

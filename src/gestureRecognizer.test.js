@@ -99,6 +99,22 @@ test("fires for a natural mostly-sideways toss with slight upward motion", () =>
   assert.ok(fire.aimDirection.x > 0.85);
 });
 
+test("fires for a natural downward side throw after a brief ready moment", () => {
+  const recognizer = createGestureRecognizer();
+  const frames = [
+    sample(0, 0.1, 0.2),
+    sample(120, 0.11, 0.2),
+    sample(240, 0.11, 0.21),
+    sample(380, 0.22, 0.27),
+    sample(500, 0.38, 0.36),
+    sample(620, 0.58, 0.45),
+  ];
+  const results = frames.map((frame) => recognizer.update({ right: frame, left: null }, 1));
+  const fire = results.find((result) => result.shouldFire);
+  assert.ok(fire);
+  assert.ok(fire.aimDirection.x > 0.65);
+});
+
 test("returns more power for faster stronger arm swings", () => {
   const softRecognizer = createGestureRecognizer();
   const hardRecognizer = createGestureRecognizer();
