@@ -107,7 +107,9 @@ export function createGestureRecognizer(options = {}) {
     if (shouldFire) {
       lastFireAt = now;
       state = "Release Confirmed";
-      const power = clamp((0.35 + speed * 0.28 + progress * 1.25) * powerScale, 0.45, 1.9);
+      const speedPower = clamp((speed - config.minSwingSpeed) / 1.25, 0, 1.65);
+      const reachPower = clamp((progress - config.minReleaseProgress) / 0.42, 0, 1.65);
+      const power = clamp((0.42 + speedPower * 0.65 + reachPower * 0.85) * powerScale, 0.35, 2.35);
       const result = { phase: state, shouldFire: true, side: sample.side, score, speed, progress, direction, aimDirection, power, debug: "Throw released" };
       readyPoint = null;
       swingFrames = 0;

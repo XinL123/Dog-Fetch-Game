@@ -330,13 +330,15 @@ button { border: 0; cursor: pointer; }
 .leg-d { left: 140px; top: 82px; transform: rotate(-6deg); }
 .carried-ball {
   position: absolute;
-  left: 110px;
-  top: 74px;
+  left: 174px;
+  top: 62px;
   width: 18px;
   height: 18px;
   border-radius: 50%;
   background: #ece8d8;
   border: 1px solid rgba(0,0,0,.28);
+  z-index: 7;
+  box-shadow: 0 3px 6px rgba(0,0,0,.24);
 }
 
 .side-panel {

@@ -138,7 +138,7 @@ test("returns more power for faster stronger arm swings", () => {
   const softFire = softFrames.map((frame) => softRecognizer.update({ right: frame, left: null }, 1)).find((result) => result.shouldFire);
   const hardFire = hardFrames.map((frame) => hardRecognizer.update({ right: frame, left: null }, 1)).find((result) => result.shouldFire);
 
-  assert.ok(hardFire.power > softFire.power + 0.25);
+  assert.ok(hardFire.power > softFire.power + 0.55);
 });
 
 test("cooldown blocks repeated throws", () => {

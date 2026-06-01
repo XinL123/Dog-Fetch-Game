@@ -13,15 +13,15 @@ export function normalize(point) {
 
 export function mapThrowToTarget({ direction, power = 1 }) {
   const dir = normalize(direction || { x: 0, y: -1 });
-  const throwPower = clamp(power, 0.4, 1.9);
+  const throwPower = clamp(power, 0.35, 2.35);
   const x = clamp(50 + dir.x * 28, 22, 78);
-  const y = clamp(39 - throwPower * 14 - Math.max(0, -dir.y) * 3, 9, 35);
+  const y = clamp(43 - throwPower * 18 - Math.max(0, -dir.y) * 2, 6, 37);
 
   return {
     x,
     y,
-    ballScale: clamp(0.66 - throwPower * 0.15, 0.32, 0.58),
-    dogScale: clamp(0.74 - throwPower * 0.1, 0.46, 0.68),
+    ballScale: clamp(0.72 - throwPower * 0.18, 0.26, 0.62),
+    dogScale: clamp(0.78 - throwPower * 0.12, 0.42, 0.7),
   };
 }
 
