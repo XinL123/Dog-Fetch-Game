@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm config set registry https://registry.npmjs.org/
-          npm ci --registry=https://registry.npmjs.org/
+          npm install --registry=https://registry.npmjs.org/ --package-lock=false
 
       - name: Build
         run: npm run build
