@@ -1,1 +1,1 @@
-http://127.0.0.1:5173/ 👈 Link
+https://xinl123.github.io/Dog-Fetch-Game/ 👈 Try the Game
